@@ -1,0 +1,226 @@
+import "base:unicode/utf8"
+
+
+Token_Type :: enum {
+    Illegal                    = 0,
+    Illegal_Character          = 1,
+    EOF                        = 2,
+
+    // Ignorable
+    Comment                    = 3,
+    Multiline_Comment          = 4,
+    Unclosed_Multiline_Comment = 5,
+    New_Line                   = 6,
+    Unclosed_String            = 7,
+
+    // Symbols
+    String                     = 8,
+}
+
+Token_Pos :: struct {
+    line:   uint,
+    col:    uint,
+    cursor: uint,
+}
+
+Token :: struct {
+    type:  Token_Type,
+    pos:   Token_Pos,
+    value: []u8,
+}
+
+// Lexer tokenizes the given data into .ini semantic tokens.
+// The given data is not writen to or modified.
+Lexer :: struct {
+    data:          []u8,
+
+    ch:            rune, // The current character being checked.
+    cursor:        uint,  // The current offset/index (rune based) in data.
+    bytes_cursor:  uint,  // The current offset/index (u8 based) in data.
+
+    line:          uint,  // The current line number.
+    bol:           uint,  // The offset/index that is the beginning of the current line.
+
+    current_token: Token,
+}
+
+
+lexer_create :: proc(data: []u8) -> Lexer {
+    l: Lexer
+    l.data = data
+    lexer_read_one_rune(&l)
+    l.cursor = 0
+    l.line   = 1
+    return l
+}
+
+lexer_token_next :: proc(l: ^Lexer) -> Token {
+    lexer_skip_whitespaces(l)
+
+    t: Token
+    t.pos = lexer_token_pos(l)
+
+    switch {
+    case l.ch == 0:
+        t.type = .EOF
+        t.value = {}
+    case l.ch == '\n':
+        t.type = .New_Line
+        t.value = l.data[l.bytes_cursor:min(len(l.data), l.bytes_cursor + 1)]
+        lexer_read_one_rune(l)
+    case l.ch == '\r':
+        t.type = .New_Line
+        t.value = l.data[l.bytes_cursor:min(len(l.data), l.bytes_cursor + 2)]
+        lexer_read_one_rune(l)
+        lexer_read_one_rune(l)
+    case l.ch == '/' && lexer_peak_one_rune(l) == '/':
+        t.type = .Comment
+        start_byte := l.bytes_cursor - 1
+        _ = lexer_read_until_new_line(l)
+        t.value = l.data[start_byte:l.bytes_cursor - 1]
+    case l.ch == '/' && lexer_peak_one_rune(l) == '*':
+        start_byte := (l.bytes_cursor - 1) + 2
+        multiline_comment_closed: bool
+        loop_multiline_comment: for {
+            star_found := lexer_read_until(l, '*')
+            if star_found {
+                if lexer_peak_one_rune(l) == '/' {
+                    t.value = l.data[start_byte:l.bytes_cursor + 3]
+                    lexer_read_one_rune(l)
+                    lexer_read_one_rune(l)
+                    multiline_comment_closed = true
+                    break loop_multiline_comment
+                }
+            } else {
+                break loop_multiline_comment
+            }
+        }
+
+        if multiline_comment_closed {
+            t.type = .Multiline_Comment
+        } else {
+            t.type = .Unclosed_Multiline_Comment
+        }
+    case l.ch == '"':
+        t.type = .String
+        start_byte := l.bytes_cursor - 1
+        quote_found := lexer_read_until(l, '"')
+        if !quote_found {
+            t.type = .Unclosed_String
+        }
+        t.value = l.data[start_byte+1:l.bytes_cursor - 1]
+        lexer_read_one_rune(l)
+    case:
+        t.type = .Illegal_Character
+    }
+
+    l.current_token = t
+
+    lexer_print_current_token(l^)
+
+    return t
+}
+
+lexer_token_peak :: proc(l: ^Lexer) -> Token {
+    l_tmp := l^
+    return lexer_token_next(&l_tmp)
+}
+
+
+lexer_token_pos :: proc(l: ^Lexer) -> Token_Pos {
+    return {
+        line   = l.line, 
+        col    = l.cursor - l.bol, 
+        cursor = l.cursor,
+    }
+}
+
+
+lexer_read_one_rune :: proc(l: ^Lexer) {
+    read_ch, size := utf8.rune_from_bytes(l.data[l.bytes_cursor:])
+
+    // EOF.
+    if size == 0 {
+        l.ch = 0
+        return
+    }
+
+    l.bytes_cursor += size
+    l.cursor       += size
+    l.ch            = read_ch
+
+    if l.ch == '\n' {
+        l.line += 1
+        l.bol = l.cursor
+    }
+}
+
+
+lexer_peak_one_rune :: proc(l: ^Lexer) -> (r: rune) {
+    read_ch, size := utf8.rune_from_bytes(l.data[l.bytes_cursor:])
+    // EOF.
+    if size == 0 {
+        return 0
+    }
+
+    return read_ch
+}
+
+
+lexer_skip_whitespaces :: proc(l: ^Lexer) {
+    // it does not skip '\n'
+    for {
+        switch l.ch {
+        case ' ', '\t', '\v', '\f', '\r':
+            lexer_read_one_rune(l)
+        case: return
+        }
+    }
+}
+
+/* 
+This acts as a multiline read; it doesn't stop on '\n', unless specified to by `until`.
+EOF (l.ch == 0) returns false.
+If sucess:
+    After this operation, `l.ch` will be one of the `check: ..rune`.
+*/
+lexer_read_until :: proc(l: ^Lexer, until: ..rune) -> (found: bool) {
+    previous_one_is_escaped := l.ch == '\\'
+    for l.ch != 0 {
+        lexer_read_one_rune(l)
+
+        if !previous_one_is_escaped {
+            for c in until {
+                if c == l.ch {
+                    return true
+                }
+            }
+        }
+
+        previous_one_is_escaped = false if previous_one_is_escaped else l.ch == '\\'
+    }
+
+    return false
+}
+
+
+/* 
+Reads until a new line
+This is better than the option above, as it accounts for '\r\n' and '\n'
+*/
+lexer_read_until_new_line :: proc(l: ^Lexer) -> (found: bool) {
+    for l.ch != 0 {
+        lexer_read_one_rune(l)
+
+        switch l.ch {
+        case '\r':
+            if lexer_peak_one_rune(l) == '\n' {
+                return true
+            }
+        case '\n':
+            return true
+        }
+    }
+
+    return false
+}

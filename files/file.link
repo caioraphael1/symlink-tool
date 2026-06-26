@@ -1,0 +1,118 @@
+// Voicemeeter
+"%USERPROFILE%\Documents\Voicemeeter" "Voicemeeter"
+
+// PowerShell
+"%USERPROFILE%\Documents\WindowsPowerShell" "WindowsPowerShell"
+
+// otPokemon
+"%USERPROFILE%\Documents\otPokemon" "otPokemon"
+
+// Starship
+"%USERPROFILE%\.config" ".config"
+
+// Barotrauma / Hidden Deep
+"%USERPROFILE%\AppData\Local\Daedalic Entertainment GmbH" "Daedalic Entertainment GmbH"
+
+// Crosscode
+"%USERPROFILE%\AppData\Local\CrossCode" "CrossCode"
+
+// Emulador Cemu (Wii U)
+"%USERPROFILE%\AppData\Local\Cemu" "Cemu"
+
+// FMOD Studio
+"%USERPROFILE%\AppData\Local\FMOD Studio" "FMOD Studio"
+
+// LunarG
+"%USERPROFILE%\AppData\Local\LunarG" "LunarG"
+
+// NeoVim
+"%USERPROFILE%\AppData\Local\nvim" "nvim"
+
+// Isles Of Sea And Sky
+"%USERPROFILE%\AppData\Local\IslesOfSeaAndSky" "IslesOfSeaAndSky"
+
+// Hollow Knight / Silksong
+"%USERPROFILE%\AppData\LocalLow\Team Cherry" "Team Cherry"
+
+// Caves Of Qud
+"%USERPROFILE%\AppData\LocalLow\Freehold Games" "Freehold Games"
+
+// Aseprite
+"%USERPROFILE%\AppData\Roaming\Aseprite" "Aseprite"
+
+// Alacritty
+"%USERPROFILE%\AppData\Roaming\alacritty" "alacritty"
+
+// Arco
+"%USERPROFILE%\AppData\Roaming\arco" "arco"
+
+// Blender
+"%USERPROFILE%\AppData\Roaming\Blender Foundation" "Blender Foundation"
+
+// Blockbench
+"%USERPROFILE%\AppData\Roaming\Blockbench" "Blockbench"
+
+// Bungie
+"%USERPROFILE%\AppData\Roaming\Bungie" "Bungie"
+
+// Godot
+"%USERPROFILE%\AppData\Roaming\Godot" "Godot"
+
+// Inkscape
+"%USERPROFILE%\AppData\Roaming\inkscape" "inkscape"
+
+// KeePassXC
+"%USERPROFILE%\AppData\Roaming\KeePassXC" "KeePassXC"
+
+// Krita
+"%USERPROFILE%\AppData\Roaming\krita" "krita"
+
+// LibreOffice
+"%USERPROFILE%\AppData\Roaming\LibreOffice" "LibreOffice"
+
+// obs-studio
+"%USERPROFILE%\AppData\Roaming\obs-studio" "obs-studio"
+
+// Obsidian
+"%USERPROFILE%\AppData\Roaming\obsidian" "obsidian"
+
+// Notepad++
+"%USERPROFILE%\AppData\Roaming\Notepad++" "Notepad++"
+
+// Pentablet
+"%USERPROFILE%\AppData\Roaming\Pentablet V3" "Pentablet V3"
+
+// Pixelorama
+"%USERPROFILE%\AppData\Roaming\pixelorama" "pixelorama"
+
+// qBittorrent
+"%USERPROFILE%\AppData\Roaming\qBittorrent" "qBittorrent"
+
+// RenderDoc
+"%USERPROFILE%\AppData\Roaming\renderdoc" "renderdoc"
+"%USERPROFILE%\AppData\Roaming\qrenderdoc" "qrenderdoc"
+
+// RadDebugger
+"%USERPROFILE%\AppData\Roaming\raddbg" "raddbg"
+
+// RustDesk
+"%USERPROFILE%\AppData\Roaming\RustDesk" "RustDesk"
+
+// StardewValley
+"%USERPROFILE%\AppData\Roaming\StardewValley" "StardewValley"
+
+// Yuzu
+"%USERPROFILE%\AppData\Roaming\yuzu" "yuzu"
+
+// VSCodium config files
+"%USERPROFILE%\AppData\Roaming\VSCodium\User\keybindings.json" "VSCodium\keybindings.json"
+"%USERPROFILE%\AppData\Roaming\VSCodium\User\settings.json" "VSCodium\settings.json"
+"%USERPROFILE%\AppData\Roaming\VSCodium\User\tasks.json" "VSCodium\tasks.json"
+"%USERPROFILE%\.vscode-oss\extensions.json" "VSCodium\extensions.json"
+
+// OBS / VoiceMeeter files
+"%USERPROFILE%\AppData\Roaming\obs-virtualcam.txt" "obs-virtualcam.txt"
+"%USERPROFILE%\AppData\Roaming\VoiceMeeterDefault.xml" "VoiceMeeterDefault.xml"
+
+// PureRef config file
+"%USERPROFILE%\AppData\Roaming\PureRef.ini" "PureRef.ini"

@@ -1,0 +1,73 @@
+import "base:container/str"
+
+import "core:os"
+
+
+LOG_LEXER :: #config(LOG_LEXER, true)
+
+when LOG_LEXER {
+    log_lexer :: os.printfln
+} else {
+    @(disabled=true)
+    log_lexer :: proc(format: string, strs: ..str.String_Type) { }
+}
+
+
+lexer_print_current_token :: proc(l: Lexer) {
+    t := l.current_token
+
+    /* 
+    TODO: This should be replace with a "format_raw" procedure.
+        I have to make this function first, as it's printing the value of `token.value` incorrectly.
+        THIS SHOULD ALSO BE USED FOR THE RUNE SEGMENT BELOW.
+    */
+    value: string
+    switch string(t.value) {
+    case "\n":
+        value = "\\n"
+    case "\r":
+        value = "\\r"
+    case "\t":
+        value = "\\t"
+    case "\v":
+        value = "\\v"
+    case "\f":
+        value = "\\f"
+    case:
+        value = string(t.value)
+    }
+
+    rune_as_string: str.String(16)
+    switch rune(l.ch) {
+    case '\n':
+        _ = str.write(&rune_as_string, "\\n")
+    case '\r':
+        _ = str.write(&rune_as_string, "\\r")
+    case '\t':
+        _ = str.write(&rune_as_string, "\\t")
+    case '\v':
+        _ = str.write(&rune_as_string, "\\v")
+    case '\f':
+        _ = str.write(&rune_as_string, "\\f")
+    case:
+        _ = str.write_rune(&rune_as_string, l.ch)
+    }
+
+    log_lexer("[lexer_print_current_token] token.type '%'   token.pos { line: %, col: % }\tl.ch '%'  token.value '%'",  str.from_enum(t.type), str.from_uint(t.pos.line), str.from_uint(t.pos.col), str.str(&rune_as_string), value)
+}
+
+
+
+LOG_PARSER :: #config(LOG_PARSER, false)
+
+when LOG_PARSER {
+    log_parser    :: os.print
+    log_parserf   :: os.printf
+    log_parserln  :: os.println
+    log_parserfln :: os.printfln
+} else {
+    @(disabled=true) log_parser    :: proc(strs: ..str.String_Type) { }
+    @(disabled=true) log_parserf   :: proc(format: string, strs: ..str.String_Type) { }
+    @(disabled=true) log_parserln  :: proc(strs: ..str.String_Type) { }
+    @(disabled=true) log_parserfln :: proc(format: string, strs: ..str.String_Type) { }
+}

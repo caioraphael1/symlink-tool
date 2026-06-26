@@ -1,0 +1,88 @@
+import "base:container/array"
+import "base:container/str"
+
+import "core:os"
+
+
+//---------------------------------
+// Links
+//---------------------------------
+
+Link_Arg :: struct {
+    dst: str.String(128),
+    src: str.String(128),
+}
+
+Links :: struct {
+    args: array.Array(512, Link_Arg),
+}
+
+
+//---------------------------------
+// Parser
+//---------------------------------
+
+Parser :: struct {
+    lexer: Lexer,
+    links: Links,
+}
+
+Parse_Error :: enum {
+    None,
+    Illegal_Token,
+}
+
+
+parse :: proc(links: ^Links, data: []u8) -> (err: Parse_Error) {
+    l := lexer_create(data)
+
+    arg_count: uint
+
+    loop_sections: for {
+        token := lexer_token_next(&l)
+        switch token.type {
+        case .Illegal:
+            log_parserln("Illegal")
+            os.printfln(os.ERROR + "Illegal token")
+            return .Illegal_Token
+        case .Unclosed_Multiline_Comment:
+            log_parserln("Unclosed_Multiline_Comment")
+            os.printfln(os.ERROR + "Illegal token: Unclosed_Multiline_Comment")
+            return .Illegal_Token
+        case .Illegal_Character:
+            log_parserln("Illegal_Character")
+            os.printfln(os.ERROR + "Illegal token: Illegal_Character")
+            return .Illegal_Token
+        case .Unclosed_String:
+            log_parserln("Unclosed_String")
+            os.printfln(os.ERROR + "Illegal token: Unclosed_String")
+            return .Illegal_Token
+
+        case .EOF:
+            log_parserln("EOF")
+            return nil
+        case .New_Line:
+            log_parserln("New line")
+        case .Comment:
+            log_parserln("Comment")
+        case .Multiline_Comment:
+            log_parserln("Multiline_Comment")
+        case .String:
+            token_next := lexer_token_next(&l)
+            #partial switch token_next.type {
+            case .String:
+                log_parserln("String")
+                link_arg: Link_Arg
+                os.assert(str.write_bytes(&link_arg.dst, token.value))
+                os.assert(str.write_bytes(&link_arg.src, token_next.value))
+                os.assert(array.append(&links.args, link_arg))
+                arg_count += 1
+            case:
+                os.printfln(os.ERROR + "Illegal token: Not a String after a String")
+                return .Illegal_Token
+            }
+        }
+    }
+
+    unreachable()
+}
