@@ -15,7 +15,7 @@ import "core:os"
 
 /* 
 (2026-07-12_11h29)
-FIX: debug invalid characters during lexer.
+TODO: Do the things after parsing.
 */
 
 main :: proc() {
@@ -54,7 +54,7 @@ main :: proc() {
     for &arg in array.slice(&links.args) {
         dst := str.str(&arg.dst)
         src := str.str(&arg.src)
-        // os.printfln("Symlinking: dst '%' src '%'", dst, src)
+        os.printfln("Symlinking: dst '%' src '%'", dst, src)
         // Is file
         if ext(src) != "" {
             // symlink_err := os.symlink(dst, src, 0x2)

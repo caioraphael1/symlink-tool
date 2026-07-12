@@ -60,6 +60,8 @@ lexer_token_next :: proc(l: ^Lexer) -> Token {
     t: Token
     t.pos = lexer_token_pos(l)
 
+    there_was_an_error: bool
+
     switch {
     case l.ch == 0:
         t.type = .EOF
@@ -100,6 +102,7 @@ lexer_token_next :: proc(l: ^Lexer) -> Token {
             t.type = .Multiline_Comment
         } else {
             t.type = .Unclosed_Multiline_Comment
+            there_was_an_error = true
         }
     case l.ch == '"':
         t.type = .String
@@ -107,16 +110,20 @@ lexer_token_next :: proc(l: ^Lexer) -> Token {
         quote_found := lexer_read_until(l, '"')
         if !quote_found {
             t.type = .Unclosed_String
+            there_was_an_error = true
         }
         t.value = l.data[start_byte+1:l.bytes_cursor - 1]
         lexer_read_one_rune(l)
     case:
         t.type = .Illegal_Character
+        there_was_an_error = true
     }
 
     l.current_token = t
 
-    lexer_print_current_token(l^)
+    if there_was_an_error {
+        lexer_print_current_token(l^)
+    }
 
     return t
 }
