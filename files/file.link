@@ -1,3 +1,6 @@
+// Alacritty
+"%USERPROFILE%\AppData\Roaming\alacritty" "alacritty\config"
+
 // Voicemeeter
 "%USERPROFILE%\Documents\Voicemeeter" "Voicemeeter"
 
@@ -39,9 +42,6 @@
 
 // Aseprite
 "%USERPROFILE%\AppData\Roaming\Aseprite" "Aseprite"
-
-// Alacritty
-"%USERPROFILE%\AppData\Roaming\alacritty" "alacritty"
 
 // Arco
 "%USERPROFILE%\AppData\Roaming\arco" "arco"
@@ -98,7 +98,7 @@
 // RustDesk
 "%USERPROFILE%\AppData\Roaming\RustDesk" "RustDesk"
 
-// StardewValley
+// Stardew Valley
 "%USERPROFILE%\AppData\Roaming\StardewValley" "StardewValley"
 
 // Yuzu

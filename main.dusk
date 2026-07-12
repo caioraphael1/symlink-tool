@@ -5,6 +5,12 @@ import "base:container/strings"
 import "base:container/slice"
 
 import "core:os"
+import "core:path"
+import win32 "core:sys/windows"
+
+import "base:mem"
+import "base:intrinsics"
+import "core:io"
 
 
 /* 
@@ -56,16 +62,21 @@ main :: proc() {
         src := str.str(&arg.src)
         os.printfln("Symlinking: dst '%' src '%'", dst, src)
         // Is file
-        if ext(src) != "" {
-            // symlink_err := os.symlink(dst, src, 0x2)
-            // if symlink_err != nil {
-            //     os.panicf("SYMLINK DIR FAILED dst '%' src '%'", dst, src)
-            // }
+        if path.ext(src) != "" {
+            symlink_err := os.symlink(dst, src, 0x2)
+            if symlink_err != nil {
+                os.panicf("SYMLINK DIR FAILED '%' dst '%' src '%'", str.from_union_of_enums(symlink_err), dst, src)
+            }
         } else {
-            // symlink_err := os.symlink(dst, src, 0x3)
-            // if symlink_err != nil {
-            //     os.panicf("SYMLINK FILE FAILED dst '%' src '%'", dst, src)
-            // }
+            wbuf: [1024]u16
+            wkey, _ := os.win32_utf8_to_wstring(dst, allocators.temp_allocator)
+            res := win32.ExpandEnvironmentStringsW(wkey, raw_data(&wbuf), len(wbuf))
+
+            symlink_err := os.symlink(dst, src, 0x3)
+            if symlink_err != nil {
+                os.panicf("SYMLINK FILE FAILED '%' dst '%' src '%'", str.from_union_of_enums(symlink_err), dst, src)
+                    // Fix: Not exist.
+            }
         }
     }
 
