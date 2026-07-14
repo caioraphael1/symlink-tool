@@ -14,7 +14,7 @@ import "core:io"
 
 
 /* 
-&"C:\Users\caior\Desktop\Caio\Programming\Dusk\dusk\dusk.exe" build .
+dusk build .
 
 .\Symlink_Tool.exe "C:\Users\caior\Desktop\caio\programming\Symlink_Tool\files\file.link" "C:\Users\caior\Desktop\caio\apps"
 */
@@ -59,23 +59,33 @@ main :: proc() {
     }
     for &arg in array.slice(&links.args) {
         dst := str.str(&arg.dst)
-        src := str.str(&arg.src)
-        os.printfln("Symlinking: dst '%' src '%'", dst, src)
-        // Is file
-        if path.ext(src) != "" {
-            symlink_err := os.symlink(dst, src, 0x2)
-            if symlink_err != nil {
-                os.panicf("SYMLINK DIR FAILED '%' dst '%' src '%'", str.from_union_of_enums(symlink_err), dst, src)
-            }
-        } else {
-            wbuf: [1024]u16
-            wkey, _ := os.win32_utf8_to_wstring(dst, allocators.temp_allocator)
-            res := win32.ExpandEnvironmentStringsW(wkey, raw_data(&wbuf), len(wbuf))
+        wbuf: [1024]u16
+        wkey, _ := os.win32_string_to_cstring16(dst, allocators.temp_allocator)
+        res := win32.ExpandEnvironmentStringsW(wkey, raw_data(&wbuf), len(wbuf))
+        os.assert(res != 0)            
+        dest_expanded, err := os.win32_utf16_to_string(wbuf[:res], allocators.temp_allocator)
 
-            symlink_err := os.symlink(dst, src, 0x3)
+        src := str.str(&arg.src)
+
+        // File
+        if path.ext(src) != "" {
+            os.printfln("SYMLINK FILE: dst '%' src '%'", dest_expanded, src)
+            symlink_err := os.symlink(dest_expanded, src, win32.SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE)
             if symlink_err != nil {
-                os.panicf("SYMLINK FILE FAILED '%' dst '%' src '%'", str.from_union_of_enums(symlink_err), dst, src)
-                    // Fix: Not exist.
+                os.panicf("SYMLINK FILE FAILED '%' dst '%' src '%'", str.from_union_of_enums(symlink_err), dest_expanded, src)
+            }
+        
+        // Directory
+        } else {
+            os.printfln("SYMLINK DIR: dst '%' src '%'", dest_expanded, src)
+        
+            symlink_err := os.symlink(dest_expanded, src, win32.SYMBOLIC_LINK_FLAG_DIRECTORY | win32.SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE)
+            switch symlink_err {
+            case nil:
+            case .Exist:
+                os.panicf("SYMLINK DIR FAILED 'Already Exists' dst '%' src '%'", dest_expanded, src)
+            case:
+                os.panicf("SYMLINK DIR FAILED '%' dst '%' src '%'", str.from_union_of_enums(symlink_err), dest_expanded, src)
             }
         }
     }
