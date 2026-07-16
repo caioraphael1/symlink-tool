@@ -22,7 +22,7 @@ lexer_print_current_token :: proc(l: Lexer) {
     rune_as_string: str.String(16)
     str.write_rune_raw(&rune_as_string, rune(l.ch))
 
-    log_lexer("[lexer_print_current_token] token.type '%'   token.pos { line: %, col: % }\tl.ch '%'  token.value '%'",  str.from_enum(t.type), str.from_uint(t.pos.line), str.from_uint(t.pos.col), str.str(&rune_as_string), str.str(&value))
+    log_lexer("[lexer_print_current_token] token.type '%'   token.pos { line: %, col: % }\tl.ch '%'  token.value '%'",  str.from_enum(t.type), str.from_num(t.pos.line), str.from_num(t.pos.col), str.str(&rune_as_string), str.str(&value))
 }
 
 
