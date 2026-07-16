@@ -20,8 +20,9 @@ dusk build .
 */
 
 /* 
-(2026-07-12_11h29)
-TODO: Do the things after parsing.
+TODO:
+    - Check pathing for the source; currently the Source Dir is not being used, and I'm not sure it should.
+    - Support for hardlink. Test hardlink for KeePassXC by just using the terminal; if it works, cool.
 */
 
 main :: proc() {
@@ -69,23 +70,23 @@ main :: proc() {
 
         // File
         if path.ext(src) != "" {
-            os.printfln("SYMLINK FILE: dst '%' src '%'", dest_expanded, src)
             symlink_err := os.symlink(dest_expanded, src, win32.SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE)
-            if symlink_err != nil {
-                os.panicf("SYMLINK FILE FAILED '%' dst '%' src '%'", str.from_union_of_enums(symlink_err), dest_expanded, src)
+
+            switch symlink_err {
+            case nil:
+                os.printfln("SYMLINK FILE '%' dst '%' src '%'", str.from_union(symlink_err), dest_expanded, src)
+            case:
+                os.panicf("SYMLINK FILE FAILED '%' dst '%' src '%'", str.from_union(symlink_err), dest_expanded, src)
             }
         
         // Directory
-        } else {
-            os.printfln("SYMLINK DIR: dst '%' src '%'", dest_expanded, src)
-        
+        } else {       
             symlink_err := os.symlink(dest_expanded, src, win32.SYMBOLIC_LINK_FLAG_DIRECTORY | win32.SYMBOLIC_LINK_FLAG_ALLOW_UNPRIVILEGED_CREATE)
             switch symlink_err {
             case nil:
-            case .Exist:
-                os.panicf("SYMLINK DIR FAILED 'Already Exists' dst '%' src '%'", dest_expanded, src)
+                os.printfln("SYMLINK DIR '%' dst '%' src '%'", str.from_union(symlink_err), dest_expanded, src)
             case:
-                os.panicf("SYMLINK DIR FAILED '%' dst '%' src '%'", str.from_union_of_enums(symlink_err), dest_expanded, src)
+                os.panicf("SYMLINK DIR FAILED '%' dst '%' src '%'", str.from_union(symlink_err), dest_expanded, src)
             }
         }
     }

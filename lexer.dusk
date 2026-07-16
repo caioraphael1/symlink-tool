@@ -18,9 +18,9 @@ Token_Type :: enum {
 }
 
 Token_Pos :: struct {
-    line:   uint,
-    col:    uint,
-    cursor: uint,
+    line:   u32,
+    col:    u32,
+    cursor: u32,
 }
 
 Token :: struct {
@@ -35,11 +35,11 @@ Lexer :: struct {
     data:          []u8,
 
     ch:            rune, // The current character being checked.
-    cursor:        uint,  // The current offset/index (rune based) in data.
-    bytes_cursor:  uint,  // The current offset/index (u8 based) in data.
+    cursor:        u32,  // The current offset/index (rune based) in data.
+    bytes_cursor:  u32,  // The current offset/index (u8 based) in data.
 
-    line:          uint,  // The current line number.
-    bol:           uint,  // The offset/index that is the beginning of the current line.
+    line:          u32,  // The current line number.
+    bol:           u32,  // The offset/index that is the beginning of the current line.
 
     current_token: Token,
 }
@@ -60,7 +60,7 @@ lexer_token_next :: proc(l: ^Lexer) -> Token {
     t: Token
     t.pos = lexer_token_pos(l)
 
-    there_was_an_error: bool
+    there_was_an_error: b8
 
     switch {
     case l.ch == 0:
@@ -68,11 +68,11 @@ lexer_token_next :: proc(l: ^Lexer) -> Token {
         t.value = {}
     case l.ch == '\n':
         t.type = .New_Line
-        t.value = l.data[l.bytes_cursor:min(len(l.data), l.bytes_cursor + 1)]
+        t.value = l.data[l.bytes_cursor:min(u32(len(l.data)), l.bytes_cursor + 1)]
         lexer_read_one_rune(l)
     case l.ch == '\r':
         t.type = .New_Line
-        t.value = l.data[l.bytes_cursor:min(len(l.data), l.bytes_cursor + 2)]
+        t.value = l.data[l.bytes_cursor:min(u32(len(l.data)), l.bytes_cursor + 2)]
         lexer_read_one_rune(l)
         lexer_read_one_rune(l)
     case l.ch == '/' && lexer_peak_one_rune(l) == '/':
@@ -82,7 +82,7 @@ lexer_token_next :: proc(l: ^Lexer) -> Token {
         t.value = l.data[start_byte:l.bytes_cursor - 1]
     case l.ch == '/' && lexer_peak_one_rune(l) == '*':
         start_byte := (l.bytes_cursor - 1) + 2
-        multiline_comment_closed: bool
+        multiline_comment_closed: b8
         loop_multiline_comment: for {
             star_found := lexer_read_until(l, '*')
             if star_found {
@@ -152,8 +152,8 @@ lexer_read_one_rune :: proc(l: ^Lexer) {
         return
     }
 
-    l.bytes_cursor += size
-    l.cursor       += size
+    l.bytes_cursor += u32(size)
+    l.cursor       += u32(size)
     l.ch            = read_ch
 
     if l.ch == '\n' {
@@ -191,7 +191,7 @@ EOF (l.ch == 0) returns false.
 If sucess:
     After this operation, `l.ch` will be one of the `check: ..rune`.
 */
-lexer_read_until :: proc(l: ^Lexer, until: ..rune) -> (found: bool) {
+lexer_read_until :: proc(l: ^Lexer, until: ..rune) -> (found: b8) {
     previous_one_is_escaped := l.ch == '\\'
     for l.ch != 0 {
         lexer_read_one_rune(l)
@@ -215,7 +215,7 @@ lexer_read_until :: proc(l: ^Lexer, until: ..rune) -> (found: bool) {
 Reads until a new line
 This is better than the option above, as it accounts for '\r\n' and '\n'
 */
-lexer_read_until_new_line :: proc(l: ^Lexer) -> (found: bool) {
+lexer_read_until_new_line :: proc(l: ^Lexer) -> (found: b8) {
     for l.ch != 0 {
         lexer_read_one_rune(l)
 

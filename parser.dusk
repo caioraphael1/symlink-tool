@@ -36,8 +36,6 @@ Parse_Error :: enum {
 parse :: proc(links: ^Links, data: []u8) -> (err: Parse_Error) {
     l := lexer_create(data)
 
-    arg_count: uint
-
     loop_sections: for {
         token := lexer_token_next(&l)
         switch token.type {
@@ -76,7 +74,6 @@ parse :: proc(links: ^Links, data: []u8) -> (err: Parse_Error) {
                 os.assert(str.write_bytes(&link_arg.dst, token.value))
                 os.assert(str.write_bytes(&link_arg.src, token_next.value))
                 os.assert(array.append(&links.args, link_arg))
-                arg_count += 1
             case:
                 os.printfln(os.ERROR + "Illegal token: Not a String after a String")
                 return .Illegal_Token
