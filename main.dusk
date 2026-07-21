@@ -16,7 +16,7 @@ import "core:io"
 /* 
 dusk build .
 
-.\Symlink_Tool.exe "C:\Users\caior\Desktop\caio\programming\Symlink_Tool\files\file.link" "C:\Users\caior\Desktop\caio\apps"
+.\Symlink_Tool.exe "C:\caio\programming\Symlink_Tool\files\file.link" "C:\caio\apps"
 */
 
 /* 
