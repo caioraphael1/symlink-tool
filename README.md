@@ -41,3 +41,9 @@
 ```sh
 dusk build .
 ```
+
+
+## TODO
+
+- [ ] Check pathing for the source; currently the Source Dir is not being used, and I'm not sure it should.
+- [ ] Support for hardlink. Test hardlink for KeePassXC by just using the terminal; if it works, cool.
