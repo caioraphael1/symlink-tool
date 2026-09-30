@@ -37,7 +37,7 @@
 ## Build
 
 - Cannot be built, as it uses the Dusk programming language, which is not yet available.
-- Once available, the app is built via:
+- Once available, the app is built by:
 ```sh
 dusk build .
 ```
